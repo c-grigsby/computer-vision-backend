@@ -11,8 +11,8 @@ const asyncHandler = require('../middleware/async');
 // @access  Public
 exports.getOCR = asyncHandler(async (req, res, next) => {
   const imageURL = req.query.imageURL;
-  const key = process.env.REACT_APP_AZURE_KEY;
-  const endpoint = process.env.REACT_APP_AZURE_ENDPOINT;
+  const key = process.env.AZURE_KEY;
+  const endpoint = process.env.AZURE_ENDPOINT;
   const computerVisionClient = new ComputerVisionClient(
     new ApiKeyCredentials({
       inHeader: { 'Ocp-Apim-Subscription-Key': key },
@@ -63,7 +63,7 @@ exports.getOCR = asyncHandler(async (req, res, next) => {
               analysisResults.push('The Read File operation was a success.');
               analysisResults.push('Read File URL image result:');
 
-              // Print the text captured
+              // Return text captured from analysis
               for (const textRecResult of readOpResult.analyzeResult
                 .readResults) {
                 for (const line of textRecResult.lines) {

@@ -14,3 +14,26 @@ This server-side application is the back end to the Computer Vision application
 
 - Developed within [Express](https://expressjs.com/), a web application framework for Node.js
 - REST API services
+
+---
+
+## Getting Started
+
+- Installing dependencies
+
+```
+$ npm install
+```
+
+- To run the development server
+
+```
+$ npm run dev
+```
+
+#### This application utilizes a config.env file to host environment variables. To utilize configure:
+
+- NODE_ENV=development
+- PORT
+- AZURE_KEY
+- AZURE_ENDPOINT
