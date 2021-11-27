@@ -12,8 +12,11 @@ This server-side application is the back end to the Computer Vision application
 
 ## Project Description
 
-- Developed within [Express](https://expressjs.com/), a web application framework for Node.js
-- REST API services
+- Developed within [Express](https://expressjs.com/)
+- REST API for interaction to the Azure A.I. Platform
+- ML Optical Character Recognition (OCR) 
+- Middleware async handler
+
 
 ---
 
