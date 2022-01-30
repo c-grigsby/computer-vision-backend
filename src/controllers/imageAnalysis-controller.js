@@ -19,28 +19,60 @@ exports.getImageAnalysis = asyncHandler(async(req, res, next)=> {
     }),
     endpoint
   );
-  let imageDescription = [];
 
   function imageAnalysis() {
     async.series([
       async function () {
-        // Describe Image: Describes what the main objects or themes are in an URL img 
-        const describeURL = imageURL;
-        const caption = (await computerVisionClient.describeImage(describeURL)).captions[0];
+        try {
+          // Describe Image: Describes what the main objects or themes are in an image sent via URL
+          const describeURL = imageURL;
+          const caption = (await computerVisionClient.describeImage(describeURL)).captions[0];
+          const imageDescription = `This may be ${caption.text} (${caption.confidence.toFixed(2)} confidence)`;
+        
+          // Detect Faces: Detects faces and returns the gender, age, location of face (bounding box)
+          let detectFaces = [];
+          const facesImageURL = imageURL;
+          const faces = (await computerVisionClient.analyzeImage(facesImageURL, { visualFeatures: ['Faces'] })).faces;
 
-        imageDescription.push(`This may be ${caption.text} (${caption.confidence.toFixed(2)} confidence)`);
+          // Get the bounding box, gender, and age from the faces
+          if (faces.length) {
+            detectFaces.push(`${faces.length} face${faces.length == 1 ? '' : 's'} found:`);
+            for (const face of faces) {
+              let faceFound = {
+                gender: `${face.gender}`, 
+                age: `${face.age}`, 
+                emotion: `${face.emotion}`,
+                boundingBox: `${formatRectFaces(face.faceRectangle)}`,
+              }
+              detectFaces.push(faceFound);
+            }
+          } 
+          else { detectFaces.push('No faces found.'); }
 
-        const analysisResults = {
-          image_description: imageDescription
+          // Formats the bounding box
+          function formatRectFaces(rect) {
+            return `top=${rect.top}`.padEnd(10) + `left=${rect.left}`.padEnd(10) + `bottom=${rect.top + rect.height}`.padEnd(12)
+            + `right=${rect.left + rect.width}`.padEnd(10) + `(${rect.width}x${rect.height})`;
+          }
+
+          const analysisResults = {
+            image_description: imageDescription,
+            detected_faces: detectFaces
+          }
+          JSON.stringify(analysisResults);
+
+          res.status(200).json({
+            success: true,
+            imageURL: imageURL,
+            data: analysisResults ,
+          });
+          return;
+        } catch (err) {
+          res.status(500).json({
+            success: false,
+            error: err,
+          });
         }
-        JSON.stringify(analysisResults);
-
-        res.status(200).json({
-          success: true,
-          imageURL: imageURL,
-          data: analysisResults ,
-        });
-        return;
       },
       function () {
         return new Promise((resolve) => {
