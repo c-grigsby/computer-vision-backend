@@ -14,9 +14,11 @@ This server-side application is the back end to the Computer Vision application
 
 - Developed within [Express](https://expressjs.com/)
 - REST API for interaction to the Azure A.I. Platform
-- ML Optical Character Recognition (OCR) 
+- ML Optical Character Recognition (OCR)
+- Image Analysis
+  - Describes what main objects or themes are present within an image
+  - Detects faces and returns the gender, age & location of face (bounding box)
 - Middleware async handler
-
 
 ---
 
