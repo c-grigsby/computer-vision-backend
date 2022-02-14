@@ -25,39 +25,50 @@ exports.getImageAnalysis = asyncHandler(async(req, res, next)=> {
       async function () {
         try {
           // Describe Image: Describes what the main objects or themes are in an image sent via URL
-          const describeURL = imageURL;
-          const caption = (await computerVisionClient.describeImage(describeURL)).captions[0];
+          const caption = (await computerVisionClient.describeImage(imageURL)).captions[0];
           const imageDescription = `This may be ${caption.text} (${caption.confidence.toFixed(2)} confidence)`;
         
           // Detect Faces: Detects faces and returns the gender, age, location of face (bounding box)
           let detectFaces = [];
-          const facesImageURL = imageURL;
-          const faces = (await computerVisionClient.analyzeImage(facesImageURL, { visualFeatures: ['Faces'] })).faces;
-
+          const faces = (await computerVisionClient.analyzeImage(imageURL, { visualFeatures: ['Faces'] })).faces;
           // Get the bounding box, gender, and age from the faces
           if (faces.length) {
-            detectFaces.push(`${faces.length} face${faces.length == 1 ? '' : 's'} found:`);
+            detectFaces.push({found: `${faces.length} face${faces.length == 1 ? '' : 's'} found: `});
             for (const face of faces) {
               let faceFound = {
                 gender: `${face.gender}`, 
                 age: `${face.age}`, 
-                emotion: `${face.emotion}`,
                 boundingBox: `${formatRectFaces(face.faceRectangle)}`,
               }
               detectFaces.push(faceFound);
             }
           } 
           else { detectFaces.push('No faces found.'); }
-
           // Formats the bounding box
           function formatRectFaces(rect) {
             return `top=${rect.top}`.padEnd(10) + `left=${rect.left}`.padEnd(10) + `bottom=${rect.top + rect.height}`.padEnd(12)
             + `right=${rect.left + rect.width}`.padEnd(10) + `(${rect.width}x${rect.height})`;
           }
 
+          // DETECT OBJECTS: Detects objects within an image. Provides confidence score, bounding box location, object size. 
+          let detectObjects = [];
+          const objects = (await computerVisionClient.analyzeImage(imageURL, { visualFeatures: ['Objects'] })).objects;
+          if (objects.length) {
+            detectObjects.push({found: `${objects.length} object${objects.length == 1 ? '' : 's'} found: `});
+            for (const obj of objects) { 
+              detectObjects.push({object: `${obj.object}`, confidence: `${obj.confidence.toFixed(2)}`, boundingBox: `${formatRectObjects(obj.rectangle)}`}); 
+            }
+          } else { console.log('No objects found.'); }
+          // Formats the bounding box
+          function formatRectObjects(rect) {
+            return `top=${rect.y}`.padEnd(10) + `left=${rect.x}`.padEnd(10) + `bottom=${rect.y + rect.h}`.padEnd(12)
+              + `right=${rect.x + rect.w}`.padEnd(10) + `(${rect.w}x${rect.h})`;
+          }
+
           const analysisResults = {
             image_description: imageDescription,
-            detected_faces: detectFaces
+            detected_faces: detectFaces,
+            detected_objects: detectObjects
           }
           JSON.stringify(analysisResults);
 
