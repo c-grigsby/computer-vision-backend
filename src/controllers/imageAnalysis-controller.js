@@ -50,7 +50,7 @@ exports.getImageAnalysis = asyncHandler(async(req, res, next)=> {
             + `right=${rect.left + rect.width}`.padEnd(10) + `(${rect.width}x${rect.height})`;
           }
 
-          // DETECT OBJECTS: Detects objects within an image. Provides confidence score, bounding box location, object size. 
+          // Detect Objects: Provides confidence score, bounding box location, & object size 
           let detectObjects = [];
           const objects = (await computerVisionClient.analyzeImage(imageURL, { visualFeatures: ['Objects'] })).objects;
           if (objects.length) {
