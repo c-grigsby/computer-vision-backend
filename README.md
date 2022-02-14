@@ -16,8 +16,9 @@ This server-side application is the back end to the Computer Vision application
 - REST API for interaction to the Azure A.I. Platform
 - ML Optical Character Recognition (OCR)
 - Image Analysis
-  - Describes what main objects or themes are present within an image
+  - Describes what main objects or themes are present within an image with confidence score
   - Detects faces and returns the gender, age & location of face (bounding box)
+  - Returns the objects identified within an image
 - Middleware async handler
 
 ---
